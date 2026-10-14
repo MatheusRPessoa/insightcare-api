@@ -1,5 +1,9 @@
 [MAIN]
 
+[MESSAGES CONTROL]
+disable=
+    redefined-outer-name
+
 disable=
       C0114,
       C0115,
