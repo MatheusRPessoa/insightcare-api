@@ -11,6 +11,10 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    aws_profile: str = "insightcare"
+    aws_region: str = "us-east-1"
+    bedrock_model_id: str = "amazon.nova-micro-v1:0"
+
 settings = Settings()
 
 @lru_cache
