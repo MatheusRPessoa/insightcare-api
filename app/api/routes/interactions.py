@@ -2,16 +2,24 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from botocore.exceptions import BotoCoreError, ClientError
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.db.session import get_db
+from app.schemas.analysis import InteractionAnalysisResponse
+from app.schemas.classification import ClassificationResponse
 from app.schemas.interaction import (
     InteractionCreate,
     InteractionResponse,
 )
+from app.services.bedrock_analysis import (
+    BedrockAnalysisError,
+    BedrockAnalysisService,
+)
 from app.services.interaction import InteractionService
-
+from app.services.ml_classifier import MLClassifierService
 
 router = APIRouter(prefix="/interactions", tags=["Interactions"])
 
@@ -60,3 +68,88 @@ def delete_interaction(
 ) -> None:
     service = InteractionService(db)
     service.delete(interaction_id)
+
+@router.post(
+    "/{interaction_id}/classify",
+    response_model=ClassificationResponse,
+)
+def classify_interaction(
+    interaction_id: UUID,
+    db: DbSession,
+) -> ClassificationResponse:
+    interaction_service = InteractionService(db)
+
+    interaction = interaction_service.get_by_id(
+        interaction_id
+    )
+
+    classifier = MLClassifierService()
+
+    try:
+        result = classifier.classify(
+            interaction.transcript
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Modelo de ML não disponível",
+        ) from exc
+
+    
+    return ClassificationResponse(
+        interaction_id=interaction.id,
+        **result,
+    )
+
+@router.post(
+    "/{interaction_id}/analyze",
+    response_model=InteractionAnalysisResponse,
+)
+def analyze_interaction(
+    interaction_id: UUID,
+    db: DbSession,
+) -> InteractionAnalysisResponse:
+    interaction_service = InteractionService(db)
+
+    interaction = interaction_service.get_by_id(
+        interaction_id
+    )
+
+    classifier = MLClassifierService()
+    analyzer = BedrockAnalysisService()
+
+    try:
+        ml_result = classifier.classify(
+            interaction.transcript
+        )
+
+        llm_result = analyzer.analyze(
+            interaction.transcript
+        )
+
+    except FileNotFoundError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Modelo de classificação indisponível",
+        ) from exc
+
+    except BedrockAnalysisError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="O modelo generativo retornou uma análise inválida",
+        ) from exc
+
+    except (BotoCoreError, ClientError) as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Serviço de IA generativa indisponível",
+        ) from exc
+
+    return InteractionAnalysisResponse(
+        interaction_id=interaction_id,
+        intent=ml_result["intent"],
+        confidence=ml_result["confidence"],
+        classification_model=ml_result["model"],
+        generative_model=settings.bedrock_model_id,
+        **llm_result.model_dump()
+    )
