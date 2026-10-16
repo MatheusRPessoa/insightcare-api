@@ -24,6 +24,7 @@ class AnalysisResult(BaseModel):
     evidence: list[str]
     recommended_action: str = Field(min_length=1)
 
+
 class InteractionAnalysisResponse(AnalysisResult):
     interaction_id: UUID
     intent: str
