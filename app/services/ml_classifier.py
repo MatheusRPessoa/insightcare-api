@@ -5,17 +5,13 @@ import joblib
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
-MODEL_PATH = (
-    BASE_DIR / "ml" / "models" / "intent_classifier.joblib"
-)
+MODEL_PATH = BASE_DIR / "ml" / "models" / "intent_classifier.joblib"
 
 
 @lru_cache(maxsize=1)
 def load_classifier():
     if not MODEL_PATH.is_file():
-        raise FileNotFoundError(
-            f"Modelo não encontrado: {MODEL_PATH}"
-        )
+        raise FileNotFoundError(f"Modelo não encontrado: {MODEL_PATH}")
 
     return joblib.load(MODEL_PATH)
 

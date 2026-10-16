@@ -1,4 +1,3 @@
-
 from collections.abc import Generator
 from uuid import UUID
 
@@ -27,11 +26,7 @@ def created_interactions() -> Generator[list[UUID], None, None]:
         return
 
     with session_local() as session:
-        session.execute(
-            delete(Interaction).where(
-                Interaction.id.in_(interaction_ids)
-            )
-        )
+        session.execute(delete(Interaction).where(Interaction.id.in_(interaction_ids)))
         session.commit()
 
 
@@ -40,8 +35,7 @@ def create_interaction(client, created_interactions):
     def _create(
         channel: str = "CHAT",
         transcript: str = (
-            "Solicitei autorização para meu exame "
-            "e ainda não recebi uma resposta."
+            "Solicitei autorização para meu exame e ainda não recebi uma resposta."
         ),
     ) -> dict:
         response = client.post(

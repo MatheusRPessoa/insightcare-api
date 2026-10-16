@@ -9,7 +9,7 @@ def main() -> None:
         modelId=settings.bedrock_model_id,
         messages=[
             {
-               "role": "user",
+                "role": "user",
                 "content": [
                     {
                         "text": (
@@ -18,7 +18,7 @@ def main() -> None:
                             "atendimentos com IA?"
                         )
                     }
-                ], 
+                ],
             }
         ],
         inferenceConfig={
@@ -37,6 +37,7 @@ def main() -> None:
 
     print("\nTokens de entrada:", usage.get("inputTokens"))
     print("Tokens de saída:", usage.get("outputTokens"))
+
 
 if __name__ == "__main__":
     main()

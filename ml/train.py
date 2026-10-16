@@ -45,7 +45,7 @@ def create_model(c: float = 1.0) -> Pipeline:
                     max_iter=2000,
                     random_state=42,
                 ),
-            ),  
+            ),
         ]
     )
 
@@ -54,9 +54,7 @@ def evaluate(model: Pipeline, data: pd.DataFrame) -> dict:
     predictions = model.predict(data["text"])
 
     return {
-        "accuracy": accuracy_score(
-            data["intent"], predictions
-        ),
+        "accuracy": accuracy_score(data["intent"], predictions),
         "f1_macro": f1_score(
             data["intent"],
             predictions,
@@ -74,7 +72,6 @@ def evaluate(model: Pipeline, data: pd.DataFrame) -> dict:
 
 def train() -> None:
     train_df, validation_df, test_df = load_data()
-
 
     print("Treino:", len(train_df))
     print("Validação:", len(validation_df))
@@ -96,22 +93,16 @@ def train() -> None:
 
         score = result["f1_macro"]
 
-        print(
-            f"C={c} | "
-            f"Accuracy={result['accuracy']:.4f} | "
-            f"F1 macro={score:.4f}"
-        )
+        print(f"C={c} | Accuracy={result['accuracy']:.4f} | F1 macro={score:.4f}")
 
         if score > best_score:
             best_score = score
             best_model = model
             best_c = c
 
-    
     assert best_model is not None
 
     print(f"\nMelhor C: {best_c}")
-
 
     final_train = pd.concat(
         [train_df, validation_df],
@@ -126,7 +117,7 @@ def train() -> None:
     )
 
     test_result = evaluate(final_model, test_df)
-        
+
     print("\n=== AVALIAÇÃO NO TESTE ===")
     print(f"Accuracy: {test_result['accuracy']:.4f}")
     print(test_result["report"])

@@ -1,4 +1,3 @@
-
 from uuid import UUID, uuid4
 
 from fastapi.testclient import TestClient
@@ -24,10 +23,7 @@ def test_list_interactions(
     response = client.get("/api/v1/interactions")
 
     assert response.status_code == 200
-    assert any(
-        item["id"] == interaction["id"]
-        for item in response.json()
-    )
+    assert any(item["id"] == interaction["id"] for item in response.json())
 
 
 def test_get_interaction(
@@ -36,9 +32,7 @@ def test_get_interaction(
 ) -> None:
     interaction = create_interaction()
 
-    response = client.get(
-        f"/api/v1/interactions/{interaction['id']}"
-    )
+    response = client.get(f"/api/v1/interactions/{interaction['id']}")
 
     assert response.status_code == 200
     assert response.json()["id"] == interaction["id"]
@@ -49,9 +43,7 @@ def test_get_nonexistent_interaction(
 ) -> None:
     interaction_id = uuid4()
 
-    response = client.get(
-        f"/api/v1/interactions/{interaction_id}"
-    )
+    response = client.get(f"/api/v1/interactions/{interaction_id}")
 
     assert response.status_code == 404
 
@@ -62,15 +54,11 @@ def test_delete_interaction(
 ) -> None:
     interaction = create_interaction()
 
-    response = client.delete(
-        f"/api/v1/interactions/{interaction['id']}"
-    )
+    response = client.delete(f"/api/v1/interactions/{interaction['id']}")
 
     assert response.status_code == 204
 
-    get_response = client.get(
-        f"/api/v1/interactions/{interaction['id']}"
-    )
+    get_response = client.get(f"/api/v1/interactions/{interaction['id']}")
 
     assert get_response.status_code == 404
 

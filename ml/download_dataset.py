@@ -3,10 +3,7 @@ from pathlib import Path
 import pandas as pd
 from datasets import load_dataset
 
-DATASET_NAME = (
-    "RichardSakaguchiMS/"
-    "brazilian-customer-service-conversations"
-)
+DATASET_NAME = "RichardSakaguchiMS/brazilian-customer-service-conversations"
 
 OUTPUT_DIR = Path("ml/data")
 
@@ -19,9 +16,7 @@ def prepare_split(dataset) -> pd.DataFrame:
         metadata = example["metadata"]
 
         customer_messages = [
-            message["content"]
-            for message in messages
-            if message["role"] == "customer"
+            message["content"] for message in messages if message["role"] == "customer"
         ]
 
         text = " ".join(customer_messages).strip()
@@ -35,10 +30,10 @@ def prepare_split(dataset) -> pd.DataFrame:
                 "text": text,
                 "intent": metadata["intent"],
                 "sentiment": metadata["sentiment"],
-                "sector": metadata["sector"], 
+                "sector": metadata["sector"],
             }
         )
-    
+
     return pd.DataFrame(rows)
 
 

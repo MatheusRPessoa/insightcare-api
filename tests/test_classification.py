@@ -8,13 +8,9 @@ def test_classify_interaction(
     client: TestClient,
     create_interaction,
 ) -> None:
-    interaction = create_interaction(
-        transcript="Quero cancelar meu plano de saúde."
-    )
+    interaction = create_interaction(transcript="Quero cancelar meu plano de saúde.")
 
-    response = client.post(
-        f"/api/v1/interactions/{interaction['id']}/classify"
-    )
+    response = client.post(f"/api/v1/interactions/{interaction['id']}/classify")
 
     assert response.status_code == 200
 
@@ -29,9 +25,7 @@ def test_classify_interaction(
 def test_classify_nonexistent_interaction(
     client: TestClient,
 ) -> None:
-    response = client.post(
-        f"/api/v1/interactions/{uuid4()}/classify"
-    )
+    response = client.post(f"/api/v1/interactions/{uuid4()}/classify")
 
     assert response.status_code == 404
 
@@ -46,9 +40,6 @@ def test_classify_model_unavailable(
         "app.services.ml_classifier.load_classifier",
         side_effect=FileNotFoundError,
     ):
-        response = client.post(
-            f"/api/v1/interactions/{interaction['id']}/classify"
-        )
-
+        response = client.post(f"/api/v1/interactions/{interaction['id']}/classify")
 
     assert response.status_code == 503

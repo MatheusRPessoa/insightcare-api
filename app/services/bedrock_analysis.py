@@ -85,17 +85,11 @@ class BedrockAnalysisService:
             raise
 
         if response.get("stopReason") != "end_turn":
-            raise BedrockAnalysisError(
-                "O Bedrock não concluiu a geração"
-            )
-        
+            raise BedrockAnalysisError("O Bedrock não concluiu a geração")
+
         blocks = response["output"]["message"]["content"]
 
-        text = "".join(
-            block["text"]
-            for block in blocks
-            if "text" in block
-        ).strip()
+        text = "".join(block["text"] for block in blocks if "text" in block).strip()
 
         try:
             data = json.loads(text)
@@ -104,14 +98,8 @@ class BedrockAnalysisService:
             raise BedrockAnalysisError(
                 "Resposta não corresponde ao schema esperado"
             ) from exc
-        
 
-        if any(
-            evidence not in transcript
-            for evidence in analysis.evidence
-        ):
-            raise BedrockAnalysisError(
-                "Evidências não correspondem à transcrição"
-            )
-        
+        if any(evidence not in transcript for evidence in analysis.evidence):
+            raise BedrockAnalysisError("Evidências não correspondem à transcrição")
+
         return analysis
